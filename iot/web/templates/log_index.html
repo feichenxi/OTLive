@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日志查看系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            min-height: 500px;
+        }
+        
+        .log-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .log-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .log-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 110, 234, 0.2);
+        }
+        
+        .log-card .filename {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .log-card .meta {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .log-card .size {
+            color: #999;
+            font-size: 11px;
+        }
+        
+        .log-viewer {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .log-viewer .line {
+            padding: 2px 0;
+        }
+        
+        .log-viewer .line.error {
+            color: #f48771;
+        }
+        
+        .log-viewer .line.warning {
+            color: #dcdcaa;
+        }
+        
+        .log-viewer .line.info {
+            color: #4ec9b0;
+        }
+        
+        .room-selector {
+            margin-bottom: 20px;
+        }
+        
+        .room-selector select {
+            width: 200px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        .diagnosis-panel {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .diagnosis-panel h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .diagnosis-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .json-viewer {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .json-key {
+            color: #92278f;
+            font-weight: bold;
+        }
+        
+        .json-string {
+            color: #3ab54a;
+        }
+        
+        .json-number {
+            color: #aeaa00;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .controls input, .controls select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        
+        .controls button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .controls button:hover {
+            background: #5568d3;
+        }
+        
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 日志查看系统</h1>
+            <button class="back-btn" onclick="window.location.href='/'">返回控制面板</button>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('overview')">概览</button>
+            <button class="tab" onclick="switchTab('logs')">所有日志</button>
+            <button class="tab" onclick="switchTab('room')">房间日志</button>
+            <button class="tab" onclick="switchTab('diagnosis')">离线诊断</button>
+        </div>
+        
+        <div class="content">
+            <div id="overview-panel" style="display: block;">
+                <div class="stats-panel">
+                    <div class="stat-card">
+                        <div class="value" id="total-logs">0</div>
+                        <div class="label">日志文件总数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="total-size">0 KB</div>
+                        <div class="label">总日志大小</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="esp32-logs">0</div>
+                        <div class="label">ESP32日志</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="offline-events">0</div>
+                        <div class="label">离线事件</div>
+                    </div>
+                </div>
+                <div class="log-list" id="recent-logs"></div>
+            </div>
+            
+            <div id="logs-panel" style="display: none;">
+                <div class="controls">
+                    <select id="log-type-filter">
+                        <option value="">所有类型</option>
+                        <option value="esp32">ESP32日志</option>
+                        <option value="heartbeat">心跳日志</option>
+                        <option value="network">网络日志</option>
+                        <option value="offline">离线日志</option>
+                    </select>
+                    <input type="text" id="search-input" placeholder="搜索日志内容...">
+                    <button onclick="filterLogs()">筛选</button>
+                    <button onclick="refreshLogs()">刷新</button>
+                </div>
+                <div class="log-list" id="all-logs"></div>
+            </div>
+            
+            <div id="room-panel" style="display: none;">
+                <div class="room-selector">
+                    <select id="room-id-select" onchange="loadRoomLogs()">
+                        <option value="">选择房间...</option>
+                    </select>
+                </div>
+                <div id="room-logs-content"></div>
+            </div>
+            
+            <div id="diagnosis-panel" style="display: none;">
+                <div class="room-selector">
+                    <select id="diagnosis-room-select" onchange="loadDiagnosis()">
+                        <option value="">选择房间...</option>
+                    </select>
+                </div>
+                <div id="diagnosis-content"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="log-detail-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 1200px; background: white; border-radius: 12px; padding: 30px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="modal-title">日志详情</h2>
+                <button onclick="closeModal()" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">关闭</button>
+            </div>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+    
+    <script>
+        let allLogs = [];
+        let rooms = [];
+        
+        async function init() {
+            await loadRooms();
+            await loadLogTypes();
+            await loadAllLogs();
+            updateOverview();
+        }
+        
+        async function loadRooms() {
+            try {
+                const response = await fetch('/api/rooms');
+                const data = await response.json();
+                if (data.success) {
+                    rooms = data.rooms;
+                    populateRoomSelects();
+                }
+            } catch (error) {
+                console.error('加载房间列表失败:', error);
+            }
+        }
+        
+        function populateRoomSelects() {
+            const roomSelect = document.getElementById('room-id-select');
+            const diagnosisSelect = document.getElementById('diagnosis-room-select');
+            
+            rooms.forEach(room => {
+                const option1 = document.createElement('option');
+                option1.value = room.id;
+                option1.textContent = `房间 ${room.id} - ${room.name} (${room.ip})`;
+                roomSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = room.id;
+                option2.textContent = `房间 ${room.id} - ${room.name}`;
+                diagnosisSelect.appendChild(option2);
+            });
+        }
+        
+        async function loadLogTypes() {
+            try {
+                const response = await fetch('/api/log/types');
+                const data = await response.json();
+                if (data.success) {
+                    const filterSelect = document.getElementById('log-type-filter');
+                    Object.entries(data.log_types).forEach(([key, value]) => {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = value;
+                        filterSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载日志类型失败:', error);
+            }
+        }
+        
+        async function loadAllLogs() {
+            try {
+                const response = await fetch('/api/log/list');
+                const data = await response.json();
+                if (data.success) {
+                    allLogs = data.logs;
+                    displayLogs(allLogs);
+                }
+            } catch (error) {
+                console.error('加载日志列表失败:', error);
+                showError('加载日志列表失败: ' + error.message);
+            }
+        }
+        
+        function displayLogs(logs) {
+            const container = document.getElementById('all-logs');
+            container.innerHTML = '';
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="loading">暂无日志文件</div>';
+                return;
+            }
+            
+            logs.forEach(log => {
+                const card = document.createElement('div');
+                card.className = 'log-card';
+                card.onclick = () => viewLogDetail(log.filename);
+                
+                card.innerHTML = `
+                    <div class="filename">${log.filename}</div>
+                    <div class="meta">更新时间: ${log.mtime_str}</div>
+                    <div class="size">大小: ${formatSize(log.size)}</div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        function updateOverview() {
+            const totalLogs = allLogs.length;
+            const totalSize = allLogs.reduce((sum, log) => sum + log.size, 0);
+            const esp32Logs = allLogs.filter(log => log.filename.startsWith('esp32/')).length;
+            const offlineLogs = allLogs.filter(log => log.filename.includes('offline')).length;
+            
+            document.getElementById('total-logs').textContent = totalLogs;
+            document.getElementById('total-size').textContent = formatSize(totalSize);
+            document.getElementById('esp32-logs').textContent = esp32Logs;
+            document.getElementById('offline-events').textContent = offlineLogs;
+            
+            const recentContainer = document.getElementById('recent-logs');
+            recentContainer.innerHTML = '';
+            
+            const recentLogs = allLogs.slice(0, 8);
+            recentLogs.forEach(log => {
+                const card = document.createElement('div');
+                card.className = 'log-card';
+                card.onclick = () => viewLogDetail(log.filename);
+                
+                card.innerHTML = `
+                    <div class="filename">${log.filename}</div>
+                    <div class="meta">更新时间: ${log.mtime_str}</div>
+                    <div class="size">大小: ${formatSize(log.size)}</div>
+                `;
+                
+                recentContainer.appendChild(card);
+            });
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.content > div').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            
+            document.getElementById(tabName + '-panel').style.display = 'block';
+        }
+        
+        async function viewLogDetail(filename) {
+            try {
+                const response = await fetch(`/api/log/content/${encodeURIComponent(filename)}?lines=1000`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('modal-title').textContent = filename;
+                    
+                    let contentHtml = '';
+                    if (data.is_json) {
+                        contentHtml = renderJson(data.content);
+                    } else {
+                        contentHtml = renderLogLines(data.content);
+                    }
+                    
+                    document.getElementById('modal-content').innerHTML = `
+                        <div class="controls">
+                            <span>总行数: ${data.total_lines || data.content.logs_count || 'N/A'}</span>
+                        </div>
+                        ${contentHtml}
+                    `;
+                    
+                    document.getElementById('log-detail-modal').style.display = 'block';
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('加载日志详情失败: ' + error.message);
+            }
+        }
+        
+        function renderLogLines(lines) {
+            let html = '<div class="log-viewer">';
+            lines.forEach(line => {
+                let lineClass = '';
+                if (line.includes('ERROR') || line.includes('失败') || line.includes('OFFLINE')) {
+                    lineClass = 'error';
+                } else if (line.includes('WARNING') || line.includes('警告')) {
+                    lineClass = 'warning';
+                } else if (line.includes('INFO') || line.includes('成功')) {
+                    lineClass = 'info';
+                }
+                
+                html += `<div class="line ${lineClass}">${escapeHtml(line)}</div>`;
+            });
+            html += '</div>';
+            return html;
+        }
+        
+        function renderJson(jsonData) {
+            if (jsonData.logs && Array.isArray(jsonData.logs)) {
+                let html = `<div class="json-viewer">
+                    <div><span class="json-key">接收时间:</span> <span class="json-string">${jsonData.recv_time_str}</span></div>
+                    <div><span class="json-key">房间ID:</span> <span class="json-number">${jsonData.room_id}</span></div>
+                    <div><span class="json-key">日志数量:</span> <span class="json-number">${jsonData.logs_count}</span></div>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+                `;
+                
+                jsonData.logs.forEach((log, index) => {
+                    html += `<div style="margin-bottom: 10px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+                        <div><span class="json-key">#${index + 1}</span></div>
+                        <div><span class="json-key">事件类型:</span> <span class="json-number">${log.event_type}</span></div>
+                        <div><span class="json-key">时间:</span> <span class="json-string">${new Date(log.timestamp).toLocaleString()}</span></div>
+                        <div><span class="json-key">错误码:</span> <span class="json-number">${log.error_code}</span></div>
+                        <div><span class="json-key">消息:</span> <span class="json-string">${log.error_msg}</span></div>
+                        <div><span class="json-key">RSSI:</span> <span class="json-number">${log.rssi} dBm</span></div>
+                        <div><span class="json-key">内存:</span> <span class="json-number">${log.free_heap}</span></div>
+                    </div>`;
+                });
+                
+                html += '</div>';
+                return html;
+            } else {
+                return `<div class="json-viewer"><pre>${JSON.stringify(jsonData, null, 2)}</pre></div>`;
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('log-detail-modal').style.display = 'none';
+        }
+        
+        async function loadRoomLogs() {
+            const roomId = document.getElementById('room-id-select').value;
+            if (!roomId) {
+                document.getElementById('room-logs-content').innerHTML = '<div class="loading">请选择房间</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/log/room/${roomId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const container = document.getElementById('room-logs-content');
+                    
+                    if (data.room_logs.length === 0) {
+                        container.innerHTML = '<div class="loading">该房间暂无ESP32日志</div>';
+                        return;
+                    }
+                    
+                    let html = '<div class="log-list">';
+                    data.room_logs.forEach(log => {
+                        html += `
+                            <div class="log-card" onclick="viewLogDetail('esp32/${log.filename}')">
+                                <div class="filename">${log.filename}</div>
+                                <div class="meta">接收时间: ${log.recv_time_str}</div>
+                                <div class="meta">日志数量: ${log.logs_count} 条</div>
+                                <div class="size">大小: ${formatSize(log.size)}</div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    
+                    container.innerHTML = html;
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('加载房间日志失败: ' + error.message);
+            }
+        }
+        
+        async function loadDiagnosis() {
+            const roomId = document.getElementById('diagnosis-room-select').value;
+            if (!roomId) {
+                document.getElementById('diagnosis-content').innerHTML = '<div class="loading">请选择房间</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/log/diagnosis/${roomId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const container = document.getElementById('diagnosis-content');
+                    
+                    if (data.diagnosis.length === 0) {
+                        container.innerHTML = '<div class="loading">该房间暂无离线诊断记录</div>';
+                        return;
+                    }
+                    
+                    let html = '<div class="diagnosis-panel"><h3>离线诊断记录</h3>';
+                    data.diagnosis.forEach(item => {
+                        html += `<div class="diagnosis-item"><pre>${escapeHtml(item)}</pre></div>`;
+                    });
+                    html += '</div>';
+                    
+                    container.innerHTML = html;
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('加载诊断记录失败: ' + error.message);
+            }
+        }
+        
+        function filterLogs() {
+            const typeFilter = document.getElementById('log-type-filter').value;
+            const searchText = document.getElementById('search-input').value.toLowerCase();
+            
+            let filtered = allLogs;
+            
+            if (typeFilter) {
+                if (typeFilter === 'esp32') {
+                    filtered = filtered.filter(log => log.filename.startsWith('esp32/'));
+                } else if (typeFilter === 'heartbeat') {
+                    filtered = filtered.filter(log => log.filename.includes('heartbeat'));
+                } else if (typeFilter === 'network') {
+                    filtered = filtered.filter(log => log.filename.includes('network'));
+                } else if (typeFilter === 'offline') {
+                    filtered = filtered.filter(log => log.filename.includes('offline'));
+                }
+            }
+            
+            if (searchText) {
+                filtered = filtered.filter(log => log.filename.toLowerCase().includes(searchText));
+            }
+            
+            displayLogs(filtered);
+        }
+        
+        function refreshLogs() {
+            loadAllLogs();
+        }
+        
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showError(message) {
+            const container = document.querySelector('.content');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-msg';
+            errorDiv.textContent = message;
+            container.insertBefore(errorDiv, container.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+; ============================================================
+; OTLive 配置文件模板
+; 使用方法：复制本文件为 config.ini 并填入真实值
+;   copy config.ini.example config.ini
+; 切勿将真实 config.ini 提交到 Git 仓库（已在 .gitignore 中忽略）
+; ============================================================
+
+[system]
+name = 规模化直播矩阵系统
+version = 5.02
+debug = false
+simulation_mode = false
+
+[server]
+secret_key = your-secret-key-change-in-production
+
+[audio]
+sample_rate = 48000
+channels = 1
+chunk_size = 1024
+buffer_size = 8192
+input_device_index = 1
+output_device_index =
+
+[performance]
+device_response_timeout = 3
+heartbeat_interval = 5
+heartbeat_port = 9999
+heartbeat_timeout = 15
+enable_room_monitoring = true
+
+[ai]
+scan_interval = 1.0
+generator_pool_size = 3
+big_gift_threshold = 100
+max_small_gifts_per_room = 5
+merge_window = 30
+expire_threshold = 30
+room_thank_interval = 3
+room_config_cache_ttl = 30
+user_thank_cooldown = 15
+
+[database]
+max_messages_count = 300
+max_gifts_count = 300
+
+[aitxt]
+; 文本生成 API（示例：SiliconFlow / DeepSeek）
+api_key = YOUR_AITXT_API_KEY
+model = deepseek-ai/DeepSeek-V3.2
+endpoint = https://api.siliconflow.cn/v1/chat/completions
+timeout = 20
+
+[aiwav]
+; 语音合成 API（示例：阿里云 DashScope / CosyVoice）
+provider = cosyvoice
+api_key = YOUR_AIWAV_API_KEY
+model = cosyvoice-v3.5-flash
+websocket_endpoint = wss://dashscope.aliyuncs.com/api-ws/v1/inference
+http_endpoint = https://dashscope.aliyuncs.com/api/v1
+output_dir = ./wav
+output_format = wav
+timeout = 60

@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房间 {{ room_id }} 日志详情</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+        
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #5568d3;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            min-height: 500px;
+        }
+        
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .log-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .log-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .log-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 110, 234, 0.2);
+        }
+        
+        .log-card .filename {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .log-card .meta {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .log-card .size {
+            color: #999;
+            font-size: 11px;
+        }
+        
+        .diagnosis-panel {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .diagnosis-panel h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        
+        .diagnosis-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ffc107;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .diagnosis-item .reason-type {
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 8px;
+        }
+        
+        .diagnosis-item .detail {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .diagnosis-item .logs-preview {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+        
+        .log-viewer {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .log-viewer .line {
+            padding: 2px 0;
+        }
+        
+        .log-viewer .line.error {
+            color: #f48771;
+        }
+        
+        .log-viewer .line.warning {
+            color: #dcdcaa;
+        }
+        
+        .log-viewer .line.info {
+            color: #4ec9b0;
+        }
+        
+        .json-viewer {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .json-key {
+            color: #92278f;
+            font-weight: bold;
+        }
+        
+        .json-string {
+            color: #3ab54a;
+        }
+        
+        .json-number {
+            color: #aeaa00;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error-msg {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .controls button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .controls button:hover {
+            background: #5568d3;
+        }
+        
+        .controls button.danger {
+            background: #dc3545;
+        }
+        
+        .controls button.danger:hover {
+            background: #c82333;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            background: #667eea;
+            border-radius: 50%;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 12px;
+            width: 2px;
+            height: calc(100% + 8px);
+            background: #ddd;
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        .timeline-item .time {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-item .event {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+        
+        .timeline-item .event.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+        
+        .timeline-item .event.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        
+        .timeline-item .event.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 房间 {{ room_id }} 日志详情</h1>
+            <div>
+                <button class="back-btn" onclick="window.location.href='/log/'">返回日志列表</button>
+                <button class="back-btn" onclick="window.location.href='/'">返回控制面板</button>
+            </div>
+        </div>
+        
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="value" id="total-logs">0</div>
+                <div class="label">ESP32日志文件</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="total-events">0</div>
+                <div class="label">总事件数</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="offline-count">0</div>
+                <div class="label">离线次数</div>
+            </div>
+            <div class="stat-card">
+                <div class="value" id="last-log-time">-</div>
+                <div class="label">最后日志时间</div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('esp32')">ESP32日志</button>
+            <button class="tab" onclick="switchTab('diagnosis')">离线诊断</button>
+            <button class="tab" onclick="switchTab('timeline')">事件时间线</button>
+        </div>
+        
+        <div class="content">
+            <div id="esp32-panel" style="display: block;">
+                <div class="controls">
+                    <button onclick="refreshRoomLogs()">刷新日志</button>
+                    <button onclick="downloadAllLogs()">下载所有日志</button>
+                </div>
+                <div class="log-list" id="room-logs-list"></div>
+            </div>
+            
+            <div id="diagnosis-panel" style="display: none;">
+                <div class="controls">
+                    <button onclick="refreshDiagnosis()">刷新诊断</button>
+                    <button class="danger" onclick="clearDiagnosis()">清除诊断记录</button>
+                </div>
+                <div id="diagnosis-content"></div>
+            </div>
+            
+            <div id="timeline-panel" style="display: none;">
+                <div class="controls">
+                    <select id="event-filter">
+                        <option value="">所有事件</option>
+                        <option value="wifi">WiFi事件</option>
+                        <option value="heartbeat">心跳事件</option>
+                        <option value="memory">内存事件</option>
+                        <option value="offline">离线事件</option>
+                    </select>
+                    <button onclick="filterTimeline()">筛选</button>
+                </div>
+                <div class="timeline" id="timeline-content"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="log-detail-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 1200px; background: white; border-radius: 12px; padding: 30px; max-height: 80vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 id="modal-title">日志详情</h2>
+                <button onclick="closeModal()" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer;">关闭</button>
+            </div>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+    
+    <script>
+        const roomId = {{ room_id }};
+        let roomLogs = [];
+        let diagnosisData = [];
+        
+        async function init() {
+            await loadRoomLogs();
+            await loadDiagnosis();
+            updateStats();
+        }
+        
+        async function loadRoomLogs() {
+            try {
+                const response = await fetch(`/api/log/room/${roomId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    roomLogs = data.room_logs;
+                    displayRoomLogs(roomLogs);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('加载房间日志失败: ' + error.message);
+            }
+        }
+        
+        function displayRoomLogs(logs) {
+            const container = document.getElementById('room-logs-list');
+            container.innerHTML = '';
+            
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="loading">该房间暂无ESP32日志文件</div>';
+                return;
+            }
+            
+            logs.forEach(log => {
+                const card = document.createElement('div');
+                card.className = 'log-card';
+                card.onclick = () => viewLogDetail(log.filename);
+                
+                card.innerHTML = `
+                    <div class="filename">${log.filename}</div>
+                    <div class="meta">接收时间: ${log.recv_time_str}</div>
+                    <div class="meta">日志数量: ${log.logs_count} 条</div>
+                    <div class="meta">更新时间: ${log.mtime_str}</div>
+                    <div class="size">大小: ${formatSize(log.size)}</div>
+                `;
+                
+                container.appendChild(card);
+            });
+        }
+        
+        async function viewLogDetail(filename) {
+            try {
+                const response = await fetch(`/api/log/content/esp32/${encodeURIComponent(filename)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('modal-title').textContent = filename;
+                    document.getElementById('modal-content').innerHTML = renderJsonLog(data.content);
+                    document.getElementById('log-detail-modal').style.display = 'block';
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('加载日志详情失败: ' + error.message);
+            }
+        }
+        
+        function renderJsonLog(jsonData) {
+            let html = `<div class="json-viewer">
+                <div><span class="json-key">接收时间:</span> <span class="json-string">${jsonData.recv_time_str}</span></div>
+                <div><span class="json-key">房间ID:</span> <span class="json-number">${jsonData.room_id}</span></div>
+                <div><span class="json-key">日志数量:</span> <span class="json-number">${jsonData.logs_count}</span></div>
+                <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+            `;
+            
+            const eventTypes = {
+                1: '心跳尝试',
+                2: '心跳成功',
+                3: '心跳失败',
+                4: 'WiFi断开',
+                5: 'WiFi连接中',
+                6: 'WiFi已连接',
+                7: 'WiFi重连开始',
+                8: 'WiFi重连成功',
+                9: 'WiFi重连失败',
+                10: 'Loop阻塞',
+                11: '音频开始',
+                12: '音频停止',
+                13: '系统重启',
+                14: '内存不足',
+                15: '日志上传开始',
+                16: '日志上传成功',
+                17: '日志上传失败',
+                18: 'SPIFFS空间不足',
+                30: 'WiFi信号弱',
+                31: 'WiFi信号扫描',
+                32: 'WiFi信号切换'
+            };
+            
+            jsonData.logs.forEach((log, index) => {
+                const eventTypeStr = eventTypes[log.event_type] || `事件${log.event_type}`;
+                let eventClass = '';
+                if (log.event_type in [3, 4, 9, 10, 13, 14, 17, 18]) {
+                    eventClass = 'error';
+                } else if (log.event_type in [7, 15, 30]) {
+                    eventClass = 'warning';
+                } else if (log.event_type in [2, 6, 8, 12, 16]) {
+                    eventClass = 'success';
+                }
+                
+                html += `<div style="margin-bottom: 15px; padding: 15px; background: ${eventClass === 'error' ? '#f8d7da' : eventClass === 'warning' ? '#fff3cd' : eventClass === 'success' ? '#d4edda' : '#f0f0f0'}; border-radius: 6px; border-left: 4px solid ${eventClass === 'error' ? '#dc3545' : eventClass === 'warning' ? '#ffc107' : eventClass === 'success' ? '#28a745' : '#667eea'};">
+                    <div style="font-weight: bold; margin-bottom: 10px;">
+                        <span class="json-key">#${index + 1}</span> 
+                        <span style="color: ${eventClass === 'error' ? '#dc3545' : eventClass === 'warning' ? '#856404' : '#333'};">${eventTypeStr}</span>
+                    </div>
+                    <div><span class="json-key">时间:</span> <span class="json-string">${new Date(log.timestamp).toLocaleString()}</span></div>
+                    <div><span class="json-key">错误码:</span> <span class="json-number">${log.error_code}</span></div>
+                    <div><span class="json-key">消息:</span> <span class="json-string">${log.error_msg}</span></div>
+                    <div><span class="json-key">RSSI:</span> <span class="json-number">${log.rssi} dBm</span></div>
+                    <div><span class="json-key">内存:</span> <span class="json-number">${log.free_heap}</span></div>
+                    <div><span class="json-key">最大分配:</span> <span class="json-number">${log.max_alloc_heap || 'N/A'}</span></div>
+                    <div><span class="json-key">Loop耗时:</span> <span class="json-number">${log.loop_duration || 0} ms</span></div>
+                    <div><span class="json-key">音频状态:</span> <span class="json-string">${log.audio_active ? '播放中' : '停止'}</span></div>
+                    ${log.reset_reason ? `<div><span class="json-key">重启原因:</span> <span class="json-string">${log.reset_reason}</span></div>` : ''}
+                    ${log.uptime ? `<div><span class="json-key">运行时间:</span> <span class="json-number">${log.uptime} s</span></div>` : ''}
+                </div>`;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+        
+        async function loadDiagnosis() {
+            try {
+                const response = await fetch(`/api/log/diagnosis/${roomId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    diagnosisData = data.diagnosis;
+                    displayDiagnosis(diagnosisData);
+                } else {
+                    showError(data.error);
+                }
+            } catch (error) {
+                showError('加载诊断记录失败: ' + error.message);
+            }
+        }
+        
+        function displayDiagnosis(diagnosis) {
+            const container = document.getElementById('diagnosis-content');
+            container.innerHTML = '';
+            
+            if (diagnosis.length === 0) {
+                container.innerHTML = '<div class="loading">该房间暂无离线诊断记录</div>';
+                return;
+            }
+            
+            const panel = document.createElement('div');
+            panel.className = 'diagnosis-panel';
+            panel.innerHTML = '<h3>离线诊断记录</h3>';
+            
+            diagnosis.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'diagnosis-item';
+                
+                const lines = item.split('\n');
+                let html = '';
+                lines.forEach(line => {
+                    if (line.includes('诊断结果:')) {
+                        const match = line.match(/\[(.*?)\]/);
+                        if (match) {
+                            html += `<div class="reason-type">诊断类型: ${match[1]}</div>`;
+                            const descMatch = line.match(/\] (.*)/);
+                            if (descMatch) {
+                                html += `<div class="detail">${descMatch[1]}</div>`;
+                            }
+                        }
+                    } else if (line.includes('相关日志:')) {
+                        html += '<div class="logs-preview">包含相关日志片段</div>';
+                    } else {
+                        html += `<div>${line}</div>`;
+                    }
+                });
+                
+                div.innerHTML = html;
+                panel.appendChild(div);
+            });
+            
+            container.appendChild(panel);
+        }
+        
+        function updateStats() {
+            document.getElementById('total-logs').textContent = roomLogs.length;
+            
+            const totalEvents = roomLogs.reduce((sum, log) => sum + log.logs_count, 0);
+            document.getElementById('total-events').textContent = totalEvents;
+            
+            const offlineCount = diagnosisData.length;
+            document.getElementById('offline-count').textContent = offlineCount;
+            
+            if (roomLogs.length > 0) {
+                const lastLog = roomLogs[0];
+                document.getElementById('last-log-time').textContent = lastLog.recv_time_str;
+            }
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.content > div').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            
+            document.getElementById(tabName + '-panel').style.display = 'block';
+            
+            if (tabName === 'timeline') {
+                loadTimeline();
+            }
+        }
+        
+        async function loadTimeline() {
+            if (roomLogs.length === 0) {
+                document.getElementById('timeline-content').innerHTML = '<div class="loading">暂无事件数据</div>';
+                return;
+            }
+            
+            try {
+                const latestLog = roomLogs[0];
+                const response = await fetch(`/api/log/content/esp32/${encodeURIComponent(latestLog.filename)}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayTimeline(data.content.logs);
+                }
+            } catch (error) {
+                showError('加载时间线失败: ' + error.message);
+            }
+        }
+        
+        function displayTimeline(logs) {
+            const container = document.getElementById('timeline-content');
+            container.innerHTML = '';
+            
+            const eventFilter = document.getElementById('event-filter').value;
+            let filteredLogs = logs;
+            
+            if (eventFilter === 'wifi') {
+                filteredLogs = logs.filter(log => log.event_type in [4, 5, 6, 7, 8, 9, 30, 31, 32]);
+            } else if (eventFilter === 'heartbeat') {
+                filteredLogs = logs.filter(log => log.event_type in [1, 2, 3]);
+            } else if (eventFilter === 'memory') {
+                filteredLogs = logs.filter(log => log.event_type in [14, 18]);
+            } else if (eventFilter === 'offline') {
+                filteredLogs = logs.filter(log => log.event_type === 13);
+            }
+            
+            filteredLogs.forEach(log => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                
+                const eventTypes = {
+                    1: '心跳尝试', 2: '心跳成功', 3: '心跳失败',
+                    4: 'WiFi断开', 5: 'WiFi连接中', 6: 'WiFi已连接',
+                    7: 'WiFi重连开始', 8: 'WiFi重连成功', 9: 'WiFi重连失败',
+                    10: 'Loop阻塞', 13: '系统重启', 14: '内存不足',
+                    30: 'WiFi信号弱', 31: 'WiFi信号扫描', 32: 'WiFi信号切换'
+                };
+                
+                let eventClass = '';
+                if (log.event_type in [3, 4, 9, 10, 13, 14]) {
+                    eventClass = 'error';
+                } else if (log.event_type in [7, 30]) {
+                    eventClass = 'warning';
+                } else if (log.event_type in [2, 6, 8]) {
+                    eventClass = 'success';
+                }
+                
+                item.innerHTML = `
+                    <div class="time">${new Date(log.timestamp).toLocaleString()}</div>
+                    <div class="event ${eventClass}">
+                        <div style="font-weight: bold;">${eventTypes[log.event_type] || `事件${log.event_type}`}</div>
+                        <div>${log.error_msg}</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                            RSSI: ${log.rssi} dBm | 内存: ${log.free_heap} | Loop: ${log.loop_duration}ms
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(item);
+            });
+        }
+        
+        function filterTimeline() {
+            loadTimeline();
+        }
+        
+        function refreshRoomLogs() {
+            loadRoomLogs();
+            updateStats();
+        }
+        
+        function refreshDiagnosis() {
+            loadDiagnosis();
+            updateStats();
+        }
+        
+        function clearDiagnosis() {
+            if (confirm('确定要清除该房间的诊断记录吗？')) {
+                diagnosisData = [];
+                displayDiagnosis([]);
+                updateStats();
+            }
+        }
+        
+        function downloadAllLogs() {
+            alert('下载功能待实现');
+        }
+        
+        function closeModal() {
+            document.getElementById('log-detail-modal').style.display = 'none';
+        }
+        
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        
+        function showError(message) {
+            const container = document.querySelector('.content');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-msg';
+            errorDiv.textContent = message;
+            container.insertBefore(errorDiv, container.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+        
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>规模化直播矩阵系统 - 部署指南</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 35px;
+        }
+        .section:last-child {
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 20px;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-title .num {
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .info-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .warning-box {
+            background: #fff8e6;
+            border-left: 4px solid #f5a623;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .success-box {
+            background: #e8f8f0;
+            border-left: 4px solid #52c41a;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .danger-box {
+            background: #fff1f0;
+            border-left: 4px solid #f5222d;
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background: #f8f9ff;
+            font-weight: 600;
+            color: #667eea;
+        }
+        tr:hover {
+            background: #fafafa;
+        }
+        .step-list {
+            list-style: none;
+            counter-reset: step;
+        }
+        .step-list li {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        .step-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 26px;
+            height: 26px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #856404;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: "Consolas", "Monaco", monospace;
+            font-size: 13px;
+            color: #d63384;
+        }
+        .wiring-diagram {
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .wiring-item {
+            display: inline-block;
+            margin: 10px 20px;
+            text-align: center;
+        }
+        .wire-color {
+            width: 60px;
+            height: 20px;
+            border-radius: 4px;
+            margin: 0 auto 8px;
+        }
+        .wire-black { background: #333; }
+        .wire-blue { background: #2196F3; }
+        .wire-red { background: #e53935; }
+        .wire-label {
+            font-size: 13px;
+            color: #666;
+        }
+        .footer {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            border-top: 1px solid #eee;
+        }
+        .device-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-online {
+            background: #e8f8f0;
+            color: #52c41a;
+        }
+        .status-offline {
+            background: #fff1f0;
+            color: #f5222d;
+        }
+        .wifi-config {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .wifi-config h4 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .wifi-config-item {
+            display: inline-block;
+            margin: 0 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+        }
+        .wifi-config-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .wifi-config-value {
+            font-size: 18px;
+            font-weight: bold;
+            font-family: "Consolas", "Monaco", monospace;
+        }
+        .power-specs {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .power-spec-item {
+            text-align: center;
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        .power-spec-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .power-spec-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 规模化直播矩阵系统</h1>
+            <p>快速部署指南 | 房间盒子接线与网络配置</p>
+        </div>
+        
+        <div class="content">
+            <!-- 第一步：网络配置 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="num">1</span>
+                    路由器网络配置
+                </h2>
+                
+                <div class="warning-box">
+                    <strong>⚠️ 重要提示：</strong>系统要求所有设备必须在同一网段内才能正常通信！
+                </div>
+                
+                <h3 style="margin: 20px 0 10px; color: #333;">1.1 修改路由器网段</h3>
+                <ol class="step-list">
+                    <li>登录路由器管理后台（通常是 <span class="code">192.168.1.1</span> 或 <span class="code">192.168.0.1</span>）</li>
+                    <li>找到 <strong>LAN口设置</strong> 或 <strong>局域网设置</strong></li>
+                    <li>将路由器IP地址改为 <span class="highlight">192.168.1.1</span></li>
+                    <li>子网掩码保持 <span class="code">255.255.255.0</span></li>
+                    <li>保存设置并重启路由器</li>
+                </ol>
+                
+                <div class="info-box">
+                    <strong>💡 配置示例：</strong><br>
+                    路由器IP：192.168.1.1<br>
+                    DHCP范围：192.168.1.100 ~ 192.168.1.200<br>
+                    子网掩码：255.255.255.0
+                </div>
+
+                <h3 style="margin: 25px 0 10px; color: #333;">1.2 配置WiFi名称和密码（必须）</h3>
+                <div class="wifi-config">
+                    <h4>📶 房间盒子将自动连接以下WiFi</h4>
+                    <div class="wifi-config-item">
+                        <div class="wifi-config-label">WiFi名称 (SSID)</div>
+                        <div class="wifi-config-value">OTLive</div>
+                    </div>
+                    <div class="wifi-config-item">
+                        <div class="wifi-config-label">WiFi密码</div>
+                        <div class="wifi-config-value">OTLive.666</div>
+                    </div>
+                </div>
+                
+                <div class="danger-box">
+                    <strong>⚠️ 必须配置：</strong>请将路由器的2.4G WiFi名称改为 <span class="code">OTLive</span>，密码设为 <span class="code">OTLive.666</span>，房间盒子才能自动连接！
+                </div>
+            </div>
+
+            <!-- 第二步：房间盒子IP配置 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="num">2</span>
+                    房间盒子IP配置
+                </h2>
+                
+                <div class="warning-box">
+                    <strong>⚠️ 重要：</strong>房间盒子接入WiFi后不会自动获得指定IP，必须在路由器中为每个设备绑定静态IP！
+                </div>
+                
+                <h3 style="margin: 20px 0 10px; color: #333;">2.1 设置静态IP绑定</h3>
+                <ol class="step-list">
+                    <li>登录路由器管理后台</li>
+                    <li>找到 <strong>DHCP静态IP分配</strong> 或 <strong>静态IP绑定</strong> 功能</li>
+                    <li>查看已连接设备列表，找到各房间盒子的MAC地址</li>
+                    <li>为每个房间盒子绑定对应的固定IP（见下表）</li>
+                    <li>保存设置并重启房间盒子</li>
+                </ol>
+                
+                <h3 style="margin: 25px 0 10px; color: #333;">2.2 IP与房间号对应表</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>房间号</th>
+                            <th>固定IP地址</th>
+                            <th>设备名称</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1号房间</td><td><span class="code">192.168.1.101</span></td><td>房间盒子 #1</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>2号房间</td><td><span class="code">192.168.1.102</span></td><td>房间盒子 #2</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>3号房间</td><td><span class="code">192.168.1.103</span></td><td>房间盒子 #3</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>4号房间</td><td><span class="code">192.168.1.104</span></td><td>房间盒子 #4</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>5号房间</td><td><span class="code">192.168.1.105</span></td><td>房间盒子 #5</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>6号房间</td><td><span class="code">192.168.1.106</span></td><td>房间盒子 #6</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>7号房间</td><td><span class="code">192.168.1.107</span></td><td>房间盒子 #7</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>8号房间</td><td><span class="code">192.168.1.108</span></td><td>房间盒子 #8</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>9号房间</td><td><span class="code">192.168.1.109</span></td><td>房间盒子 #9</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>10号房间</td><td><span class="code">192.168.1.110</span></td><td>房间盒子 #10</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>11号房间</td><td><span class="code">192.168.1.111</span></td><td>房间盒子 #11</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                        <tr><td>12号房间</td><td><span class="code">192.168.1.112</span></td><td>房间盒子 #12</td><td><span class="device-status status-offline">待配置</span></td></tr>
+                    </tbody>
+                </table>
+                
+                <div class="success-box">
+                    <strong>✅ IP配置规律：</strong>房间号 + 100 = IP最后一段<br>
+                    例如：1号房间 → 101，12号房间 → 112
+                </div>
+            </div>
+
+            <!-- 第三步：接线指南 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="num">3</span>
+                    房间盒子接线指南
+                </h2>
+                
+                <div class="wiring-diagram">
+                    <h3 style="margin-bottom: 20px; color: #333;">🔌 电源接线示意</h3>
+                    <div class="wiring-item">
+                        <div class="wire-color wire-black"></div>
+                        <div class="wire-label"><strong>黑色/蓝色线</strong><br>火线输入 (L入)</div>
+                    </div>
+                    <div style="display: inline-block; margin: 0 20px; font-size: 24px; color: #999;">→</div>
+                    <div class="wiring-item">
+                        <div class="wire-color wire-red"></div>
+                        <div class="wire-label"><strong>红色线</strong><br>火线输出 (L出)</div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>💡 线色说明：</strong>输入火线通常为 <span class="highlight">黑色</span> 或 <span class="highlight">蓝色</span>，输出火线为 <span class="highlight">红色</span>。请以实际标注为准。
+                </div>
+                
+                <h3 style="margin: 20px 0 10px; color: #333;">3.1 功率限制</h3>
+                <div class="power-specs">
+                    <div class="power-spec-item">
+                        <div class="power-spec-value">3-220V</div>
+                        <div class="power-spec-label">工作电压范围</div>
+                    </div>
+                    <div class="power-spec-item">
+                        <div class="power-spec-value">≤1500W</div>
+                        <div class="power-spec-label">粗线功率限制</div>
+                    </div>
+                    <div class="power-spec-item">
+                        <div class="power-spec-value">≤50W</div>
+                        <div class="power-spec-label">细线功率限制</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 20px 0 10px; color: #333;">3.2 接线步骤</h3>
+                <ol class="step-list">
+                    <li><strong>确认断电：</strong>接线前务必关闭总电源，确保安全</li>
+                    <li><strong>接入火线：</strong>将外部火线接入房间盒子的<span class="highlight">黑色/蓝色线（入）</span></li>
+                    <li><strong>接出火线：</strong>将房间盒子的<span class="highlight">红色线（出）</span>接到设备的火线端</li>
+                    <li><strong>零线处理：</strong>设备的零线直接接入总零线（房间盒子不控制零线）</li>
+                    <li><strong>检查接线：</strong>确认所有接线牢固，无裸露铜线</li>
+                    <li><strong>通电测试：</strong>打开总电源，观察房间盒子指示灯状态</li>
+                </ol>
+                
+                <div class="warning-box">
+                    <strong>⚠️ 安全警告：</strong><br>
+                    • 接线操作必须由专业电工完成<br>
+                    • 220V电压有触电危险，操作时请做好绝缘防护<br>
+                    • 接线完成后请仔细检查，确认无误后再通电<br>
+                    • 请勿超过功率限制，否则可能损坏设备或引发火灾
+                </div>
+            </div>
+
+            <!-- 第四步：软件启动 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="num">4</span>
+                    启动控制软件
+                </h2>
+                
+                <ol class="step-list">
+                    <li>确保电脑已连接到 <span class="highlight">192.168.1.x</span> 网段的路由器</li>
+                    <li>双击运行 <span class="code">IOT_Control_Center.exe</span></li>
+                    <li>等待软件启动，自动检测房间盒子在线状态</li>
+                    <li>在控制面板中查看各房间在线状态（绿色表示在线）</li>
+                </ol>
+                
+                <div class="info-box">
+                    <strong>💡 常见问题：</strong><br>
+                    • 如果房间显示离线，请检查房间盒子是否通电、WiFi是否正常连接<br>
+                    • 确认电脑和房间盒子在同一网段（192.168.1.x）<br>
+                    • 检查路由器中静态IP绑定是否正确配置<br>
+                    • 检查防火墙是否阻止了软件网络通信
+                </div>
+            </div>
+
+            <!-- 快速参考 -->
+            <div class="section">
+                <h2 class="section-title">
+                    <span class="num">5</span>
+                    快速参考
+                </h2>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>项目</th>
+                            <th>配置值</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>路由器IP</td><td>192.168.1.1</td></tr>
+                        <tr><td>WiFi名称 (SSID)</td><td>OTLive</td></tr>
+                        <tr><td>WiFi密码</td><td>OTLive.666</td></tr>
+                        <tr><td>房间盒子IP范围</td><td>192.168.1.101 ~ 192.168.1.112</td></tr>
+                        <tr><td>子网掩码</td><td>255.255.255.0</td></tr>
+                        <tr><td>房间盒子端口</td><td>8080</td></tr>
+                        <tr><td>工作电压</td><td>3-220V</td></tr>
+                        <tr><td>粗线功率限制</td><td>≤1500W</td></tr>
+                        <tr><td>细线功率限制</td><td>≤50W</td></tr>
+                        <tr><td>控制软件</td><td>IOT_Control_Center.exe</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>规模化直播矩阵系统 | 技术支持微信号：<strong style="color: #667eea; font-size: 16px;">otlive</strong></p>
+            <p style="margin-top: 5px;">© 2025 All Rights Reserved</p>
+        </div>
+    </div>
+</body>
+</html>

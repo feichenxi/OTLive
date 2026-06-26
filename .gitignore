@@ -1,0 +1,132 @@
+# ─────────────────────────────────────────────────────────────
+# OTLive 规模化直播矩阵系统 — .gitignore
+# Python / PHP / PlatformIO(ESP32) / PyInstaller / Windows
+# ─────────────────────────────────────────────────────────────
+
+# ── Python 字节码 / Bytecode ─────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+develop-eggs/
+sdist/
+wheels/
+pip-wheel-metadata/
+.installed.cfg
+MANIFEST
+
+# ── 虚拟环境 / Virtual environments ──────────────────────────
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# ── PyInstaller 构建产物 / Build artifacts ───────────────────
+build/
+dist/
+*.manifest
+*.spec.bak
+localpycs/
+*.pkg
+warn-*.txt
+xref-*.html
+# 保留 IOT_Control_Center.spec 作为打包配置参考，如需忽略请取消下一行注释
+# iot/build/IOT_Control_Center.spec
+
+# ── 可执行文件 / Compiled binaries ───────────────────────────
+*.exe
+*.dll
+*.dylib
+*.com
+*.bat.bin
+
+# ── 日志文件 / Log files ─────────────────────────────────────
+*.log
+*.log.*
+logs/
+iot/log/
+iot/offline.log
+
+# ── 数据库文件 / Local databases（含本地运行数据，勿提交）────
+iot/database/config.db
+iot/database/room_*.db
+iot/AiobsBarrageIdea.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ── 敏感配置 / Sensitive config（含真实密钥，勿提交）─────────
+# 真实配置请保留在本地 config.ini，模板见 config.ini.example
+config.ini
+# 授权/证书等敏感文件
+*.key
+*.pem
+*.cert
+*.p12
+
+# ── PlatformIO / ESP32 构建产物 ──────────────────────────────
+esp32-s3/.pio/
+esp32-s3/.vscode/.browse.c_cpp.db*
+esp32-s3/.vscode/c_cpp_properties.json
+esp32-s3/.vscode/ipch
+*.bin
+*.elf
+*.map
+*.o
+*.a
+main_backup_*.cpp
+
+# ── IDE / Editors ────────────────────────────────────────────
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+# 保留 esp32-s3/.vscode/extensions.json（项目推荐扩展配置）
+
+# ── 操作系统 / OS junk ───────────────────────────────────────
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+.DS_Store
+
+# ── 一键推送脚本（含个人推送配置，请勿提交）─────────────────
+一键上传GitHub.bat
+一键推送到GitHub.bat
+
+# ── 测试 / Coverage ──────────────────────────────────────────
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+nosetests.xml
+*.cover
+.hypothesis/
+
+# ── 类型检查 / Type checkers ─────────────────────────────────
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+.ruff_cache/
+
+# ── PHP / Web 运行时 ─────────────────────────────────────────
+web/uploads/pickup/*
+!web/uploads/pickup/.htaccess
+!web/uploads/pickup/index.html

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>{{ system_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ version }}">
+    <link id="theme-stylesheet" rel="stylesheet" href="">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>{{ system_name }} <span class="version-badge">v{{ version }}</span></h1>
+            <button class="nav-btn" id="home-btn">首页</button>
+            <button class="nav-btn" id="gift-btn">礼物</button>
+            <button class="nav-btn" id="settings-btn">系统设置</button>
+            <button class="nav-btn" id="barrage-btn">打开弹幕</button>
+        </div>
+        <div class="system-status">
+            <button class="runtime-btn" id="runtime-btn" title="运行时间">已运行0小时</button>
+            <button class="refresh-btn" id="refresh-btn" title="刷新">♻️</button>
+            <button class="fullscreen-btn" id="fullscreen-btn" title="全屏">⛶</button>
+            <button class="shutdown-btn" id="shutdown-btn" title="关机">🔌</button>
+        </div>
+    </header>
+
+    <main class="home-layout">
+        <!-- 左侧房间选择区域 (50%) -->
+        <aside class="room-selection">
+            <div class="room-card-container">
+                <h2>直播间列表</h2>
+                <div class="rooms-grid-10">
+                    <button class="room-btn" data-room="1">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="2">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="3">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="4">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="5">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="6">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="7">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="8">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="9">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="10">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="11">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                    <button class="room-btn" data-room="12">
+                        <span class="room-icon">🏠</span>
+                        <div class="room-btn-content">
+                            <span class="room-name"></span>
+                            <div class="room-status-row">
+                                <span class="room-status-badge"></span>
+                            </div>
+                        </div>
+                        <span class="room-viewer-count" style="display: none;"></span>
+                        <span class="room-trigger-count" style="display: none;"></span>
+                        <span class="room-intercom-badge" style="display: none;">🎤</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧房间详情区域 (50%) -->
+        <section class="room-details">
+            <div class="room-card-container">
+                <!-- 首页专属卡片 -->
+                <div class="room-info-card" id="home-card">
+                    <div class="room-info-header">
+                        <h2 id="home-card-title">全部直播间</h2>
+                        <div class="room-action-buttons">
+                            <button class="room-action-btn home-settings-btn" id="home-settings-btn" title="系统设置">⚙️</button>
+                        </div>
+                    </div>
+                    <div class="room-status-info">
+                        <!-- 房间状态信息将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 房间信息卡片 (选择房间后显示) -->
+                <div class="room-info-card" id="room-info" style="display: none;">
+                    <div class="room-info-header">
+                        <h2 id="selected-room-name">房间1</h2>
+                        <div class="room-action-buttons">
+                            <button class="room-action-btn room-settings-btn" id="room-settings-btn" title="房间设置">⚙️</button>
+                            <button class="room-action-btn room-ai-btn" id="room-ai-btn" title="AI配置">🤖</button>
+                            <button class="room-action-btn room-sound-btn" id="room-sound-btn" title="音效设置">🔊</button>
+                            <button class="room-action-btn room-prog-btn" id="room-prog-btn" title="可编程设备">⚡</button>
+                            <button class="room-action-btn room-logs-btn" id="room-logs-btn" title="触发日志">📋</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设备控件区域 -->
+                <div class="room-status-details" id="room-controls">
+                </div>
+                <!-- 消息区域 -->
+                <div class="room-messages-area" id="room-messages-area">
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 智能家庭主控系统</p>
+    </footer>
+
+    <!-- 可编程设备配置对话框 -->
+    <div class="modal-overlay" id="prog-config-modal">
+        <div class="settings-dialog prog-config-dialog">
+            <div class="settings-dialog-header">
+                <h3>【<span id="prog-config-room-name"></span>】可编程设备配置</h3>
+                <button class="dialog-close-btn" id="prog-config-modal-close">&times;</button>
+            </div>
+            <div class="settings-dialog-body">
+                <div class="prog-devices-container">
+                    <table class="prog-devices-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">启用</th>
+                                <th style="width: 60px;">针脚</th>
+                                <th style="width: 100px;">设备名称</th>
+                                <th style="width: 100px;">开时间</th>
+                                <th style="width: 100px;">关时间</th>
+                                <th>触发事件</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prog-devices-list">
+                            <!-- 可编程设备列表将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="settings-dialog-footer">
+                <button class="dialog-btn dialog-btn-save" id="prog-config-modal-save">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 音效设置对话框 -->
+    <div class="modal-overlay" id="sound-settings-modal">
+        <div class="settings-dialog sound-settings-dialog">
+            <div class="settings-dialog-header">
+                <h3>【<span id="sound-settings-room-name"></span>】音效设置</h3>
+                <button class="dialog-close-btn" id="sound-settings-modal-close">&times;</button>
+            </div>
+            <div class="settings-dialog-body">
+                <div class="sound-settings-container">
+                    <table class="sound-settings-table">
+                        <thead>
+                            <tr>
+                                <th>启用音效</th>
+                                <th>设备名称</th>
+                                <th>延时(秒)</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sound-settings-list">
+                            <!-- 音效设置列表将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="settings-help">
+                    <small>音效文件路径：sound/房间id/设备名.wav</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 循环设置对话框 -->
+    <div class="modal-overlay" id="loop-settings-modal">
+        <div class="settings-dialog loop-settings-dialog">
+            <div class="settings-dialog-header">
+                <h3>【<span id="loop-settings-room-name"></span>】主常动循环设置</h3>
+                <button class="dialog-close-btn" id="loop-settings-modal-close">&times;</button>
+            </div>
+            <div class="settings-dialog-body">
+                <div class="loop-settings-container">
+                    <table class="loop-settings-table">
+                        <thead>
+                            <tr>
+                                <th>动作模式</th>
+                                <th>触发分钟</th>
+                                <th>持续时间(秒)</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loop-settings-list">
+                            <!-- 循环设置列表将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="settings-dialog-footer">
+                <button class="dialog-btn dialog-btn-save" id="loop-settings-modal-save">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 触发日志对话框 -->
+    <div class="modal-overlay" id="trigger-logs-modal">
+        <div class="settings-dialog trigger-logs-dialog">
+            <div class="settings-dialog-header">
+                <h3>【<span id="trigger-logs-room-name"></span>】礼物触发日志</h3>
+                <button class="dialog-close-btn" id="trigger-logs-modal-close">&times;</button>
+            </div>
+            <div class="settings-dialog-body">
+                <!-- 设备筛选按钮 -->
+                <div class="trigger-logs-filter" id="trigger-logs-filter" style="margin-bottom: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="device-filter-btn active" data-device="all">全部</button>
+                    <button class="device-filter-btn" data-device="trigger">主触发</button>
+                    <!-- 可编程设备按钮将通过JS动态生成 -->
+                </div>
+                <div class="trigger-logs-container" style="height: 300px; overflow-y: auto;">
+                    <table class="trigger-logs-table" style="width: 100%; border-collapse: collapse;">
+                        <thead style="position: sticky; top: 0; background: var(--card-bg);">
+                            <tr>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color);">时间</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color);">设备</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color);">礼物</th>
+                                <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color);">礼物数</th>
+                                <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color);">触发</th>
+                                <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color);">原剩余</th>
+                                <th style="padding: 8px; text-align: center; border-bottom: 1px solid var(--border-color);">现剩余</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trigger-logs-list">
+                            <!-- 触发日志将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="settings-dialog-footer">
+                <button class="dialog-btn dialog-btn-save" id="trigger-logs-modal-refresh">刷新</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息/礼物详情对话框 -->
+    <div class="modal-overlay" id="message-detail-modal">
+        <div class="settings-dialog">
+            <div class="settings-dialog-header">
+                <h3>详细信息</h3>
+                <button class="dialog-close-btn" id="message-detail-modal-close">&times;</button>
+            </div>
+            <div class="settings-dialog-body">
+                <div class="settings-field inline">
+                    <label>昵称</label>
+                    <span id="message-detail-nickname" style="flex: 1;"></span>
+                </div>
+                <div class="settings-field inline">
+                    <label>内容</label>
+                    <span id="message-detail-content" style="flex: 1;"></span>
+                </div>
+                <div class="settings-field inline">
+                    <label>时间</label>
+                    <span id="message-detail-time" style="flex: 1;"></span>
+                </div>
+            </div>
+            <div class="settings-dialog-footer">
+                <button class="dialog-btn dialog-btn-save" id="message-detail-modal-ok">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 礼物配置对话框 -->
+    <div class="modal-overlay" id="gift-config-modal">
+        <div class="settings-dialog gift-config-dialog">
+            <div class="settings-dialog-header">
+                <h3>礼物配置</h3>
+                <input type="text" id="gift-search-input" placeholder="搜索礼物名称..." class="gift-search-input">
+                <button class="dialog-close-btn" id="gift-config-modal-close">&times;</button>
+            </div>
+            <div class="settings-dialog-body">
+                <div class="gift-list-container">
+                    <table class="gift-list-table">
+                        <thead>
+                            <tr>
+                                <th>礼物名称</th>
+                                <th>价值</th>
+                                <th>等级</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gift-list-body">
+                            <!-- 礼物列表将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="gift-add-form" id="gift-add-form">
+                    <h4>添加礼物</h4>
+                    <div class="form-row">
+                        <input type="text" id="new-gift-name" placeholder="礼物名称">
+                        <input type="number" id="new-gift-value" placeholder="价值" min="0">
+                        <select id="new-gift-level">
+                            <option value="5">巨大</option>
+                            <option value="4">大</option>
+                            <option value="3">中</option>
+                            <option value="2">小</option>
+                            <option value="1">微</option>
+                            <option value="0">无</option>
+                        </select>
+                        <button class="btn btn-primary" id="add-gift-btn">添加</button>
+                        <button class="btn btn-secondary" id="sync-gifts-btn">一键拉取</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 房间AI配置对话框 -->
+    <div class="modal-overlay" id="room-ai-config-modal">
+        <div class="settings-dialog ai-config-dialog">
+            <div class="settings-dialog-header">
+                <h3>【<span id="room-ai-config-room-name"></span>】AI配置</h3>
+                <button class="dialog-close-btn" id="room-ai-config-modal-close">&times;</button>
+            </div>
+            <div class="settings-dialog-body">
+                <div class="settings-field">
+                    <label for="room-ai-prompt-input">主播介绍（AI提示词，优先级高于默认提示词）</label>
+                    <textarea id="room-ai-prompt-input" class="settings-textarea" rows="3" placeholder="例如：我是男主播，性格活泼幽默，喜欢和粉丝互动，说话比较接地气。"></textarea>
+                    <div class="settings-help">
+                        <small>可填写：性别、性格、说话风格等，AI会根据此生成符合主播风格的感谢语</small>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px; border-left: 3px solid #007bff; padding-left: 10px;">音频AI实时复刻功能</h4>
+                    <div class="settings-field inline">
+                        <label>音频样本</label>
+                        <span id="room-voice-sample-status" class="voice-status-text">未上传</span>
+                        <input type="file" id="room-voice-sample-input" accept=".wav,.mp3,.flac" style="display: none;">
+                        <button class="device-btn" id="room-upload-voice-btn" style="margin-left: 10px;">上传</button>
+                    </div>
+                    <div class="settings-field inline">
+                        <label for="room-voice-text-input">音频内容</label>
+                        <input type="text" id="room-voice-text-input" placeholder="音频中说的内容" style="flex: 1;">
+                    </div>
+                    <div class="settings-field inline voice-clone-row">
+                        <label>音频复刻</label>
+                        <div class="voice-clone-status-wrapper">
+                            <span id="room-voice-clone-status">未复刻</span>
+                            <button class="device-btn" id="room-clone-voice-btn" disabled>开始复刻</button>
+                        </div>
+                    </div>
+                    <div class="settings-field inline" style="margin-top: 12px; align-items: center;">
+                        <label>答谢价值</label>
+                        <input type="number" id="room-thank-value" class="ai-prompt-input" placeholder="请输入礼物答谢阈值" min="0" max="99999" step="0.1" style="width: 80px;">
+                        <span style="color: #999; font-size: 14px; margin-left: 8px; background: none; border: none; padding: 0;">最大不能超过99999</span>
+                    </div>
+                    <div class="settings-field inline" style="margin-top: 12px;">
+                        <label>AI答谢</label>
+                        <div class="speaker-switch">
+                            <label class="switch">
+                                <input type="checkbox" id="room-ai-thank-switch">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <span id="room-ai-thank-hint" class="setting-description" style="color: #f44336; display: none;">请先完成音频复刻，才能启用AI答谢</span>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-dialog-footer">
+                <button class="dialog-btn dialog-btn-cancel" id="room-ai-config-modal-cancel">取消</button>
+                <button class="dialog-btn dialog-btn-save" id="room-ai-config-modal-save">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.LICENSE_ID = {{ license_id }};
+    </script>
+    <script src="{{ url_for('static', filename='js/socket.io.js') }}?v={{ version }}"></script>
+    <script src="{{ url_for('static', filename='js/theme-manager.js') }}?v={{ version }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/app.js') }}?v={{ version }}&t={{ now }}"></script>
+</body>
+</html>
